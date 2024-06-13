@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Nube de Palabras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://media.istockphoto.com/id/845663180/fr/photo/corrosion-en-acier-peint.jpg?s=612x612&w=0&k=20&c=QO9aTyW7ZuvNHBuCa6jiCoH2Rsn2BGAGnbz44gUAEAs=');
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            margin-top: 20px;
+            background-color: rgba(240, 240, 240, 0.9); /* Fondo gris claro con 90% de opacidad */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Sombra suave */
+            max-width: 600px; /* Ajusta el ancho máximo según tus necesidades */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 100%; /* Ajusta este valor a lo que prefieras */
+            height: auto;
+        }
+        .container input,
+        .container button,
+        .container textarea {
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .container button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        .container button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            margin: 10px 0; /* Márgenes superior e inferior */
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        button {
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+        }
+        #word-count {
+            text-align: center;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        #download-button {
+            display: none;
+            margin-top: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img class="logo" src="https://github.com/LuisCerelli/LogoLCDS/blob/main/Encabezados/Banner_encabezado_A&L_Grande.png?raw=true" alt="Logo">
+        <h1>Generador de Nube de Palabras</h1>
+        <form id="wordcloud-form">
+            <label for="youtube-url">URL del Video de YouTube:</label>
+            <input type="text" id="youtube-url" name="youtube-url" required>
+
+            <label for="text-filename">Nombre del Archivo de Texto:</label>
+            <input type="text" id="text-filename" name="text-filename" required>
+
+            <label for="num-words">Número de Palabras:</label>
+            <input type="number" id="num-words" name="num-words">
+
+            <label for="stop-words">Palabras a Excluir (separadas por coma):</label>
+            <textarea id="stop-words" name="stop-words"></textarea>
+
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="left-label">Etiqueta Izquierda:</label>
+            <input type="text" id="left-label" name="left-label" required>
+
+            <label for="right-label">Etiqueta Derecha:</label>
+            <input type="text" id="right-label" name="right-label" required>
+
+            <button type="submit">Generar Nube de Palabras</button>
+        </form>
+        <p id="word-count"></p>
+        <button id="download-button">Descargar Imagen</button>
+        <img id="wordcloud-image" src="" alt="Nube de Palabras Generada" style="display:none;">
+    </div>
+
+    <script>
+        document.getElementById('wordcloud-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const youtubeUrl = document.getElementById('youtube-url').value;
+            const textFilename = document.getElementById('text-filename').value;
+            const numWords = document.getElementById('num-words').value;
+            const stopWords = document.getElementById('stop-words').value;
+            const title = document.getElementById('title').value;
+            const leftLabel = document.getElementById('left-label').value;
+            const rightLabel = document.getElementById('right-label').value;
+
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    youtubeUrl,
+                    textFilename,
+                    numWords,
+                    stopWords,
+                    title,
+                    leftLabel,
+                    rightLabel
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                const imageUrl = `static/${result.image_filename}.png`;
+                const wordcloudImage = document.getElementById('wordcloud-image');
+                wordcloudImage.src = imageUrl;
+                wordcloudImage.style.display = 'block';
+
+                const wordCountElement = document.getElementById('word-count');
+                wordCountElement.textContent = `Número de palabras: ${result.word_count}`;
+
+                const downloadButton = document.getElementById('download-button');
+                downloadButton.style.display = 'block';
+                downloadButton.onclick = function() {
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.download = `${result.image_filename}.png`;
+                    link.click();
+                };
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        });
+    </script>
+</body>
+</html>
