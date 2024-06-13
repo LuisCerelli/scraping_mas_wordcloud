@@ -86,7 +86,7 @@ def generate_wordcloud(text, filename, stop_words, num_words, title, left_label,
         ax.set_title(title, fontsize=20, weight='bold', pad=100, y=0.9)# Centrando y ajustando el título
 
         # Generar y mostrar la nube de palabras
-        ax.imshow(WordCloud(width=800, height=400, background_color='#f4f4ff', colormap='viridis').generate_from_frequencies(word_freq), interpolation='bilinear')
+        ax.imshow(WordCloud(width=800, height=400, background_color='#EBEBF7', colormap='Dark2').generate_from_frequencies(word_freq), interpolation='bilinear')
 
         
 
